@@ -1,0 +1,23 @@
+{
+  "name": "pacgake.json",
+  "version": "1.0.0",
+  "description": "pixi-game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync -s -w -f '*.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrosDimitrijevic31/Slot_Game.git"
+  },
+  "author": "Uros Dimitrijevic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UrosDimitrijevic31/Slot_Game/issues"
+  },
+  "homepage": "https://github.com/UrosDimitrijevic31/Slot_Game#readme",
+  "dependencies": {
+    "howler": "^2.2.3"
+  }
+}

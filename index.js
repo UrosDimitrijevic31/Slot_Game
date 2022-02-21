@@ -33,7 +33,7 @@ class Information {
         }
         this.reduceBetOne = function (){
             //Reduce bet when player press on maxBet button
-            this.bet = this.oneBEt;
+            this.bet = this.oneBet;
         }
     }
 }
@@ -106,6 +106,8 @@ function onAssetsLoaded() {
         reels.push(reel);   
     }
     app.stage.addChild(reelContainer);
+    
+    
 
     // Build top & bottom covers and position reelContainer
     const margin = (app.screen.height - SYMBOL_SIZE * 3) / 2; //75 - ovde podesavam top & bottom
@@ -119,13 +121,32 @@ function onAssetsLoaded() {
     top.drawRect(0, 0, app.screen.width, margin);
     topContainer.addChild(top)
 
+
     const bottomContainer = new PIXI.Container();
     const bottom = new PIXI.Graphics();
     bottom.beginFill(0, 1);
     bottom.drawRect(0, SYMBOL_SIZE * 3 + margin, app.screen.width, margin);
     bottomContainer.addChild(bottom);
 
+    app.stage.addChild(topContainer);
+    app.stage.addChild(bottomContainer);
     
+    //add buttons
+    const createImageButton = ( interactive, image, audioMP3, audioOGG, x, y, scale ) => {
+        const button = PIXI.Sprite.from(image);
+        const sound = new Howl({
+            src: [audioMP3, audioOGG]
+        });
+        button.sound = sound;
+        button.interactive = interactive;
+        button.buttonMode = true;
+        button.on('pointerdown', event => sound.play());
+        bottom.addChild(button);
+        button.x = x;
+        button.y = y;
+        button.scale.set(scale);
+        return button;
+    };
 
     // Add play text
     const style = new PIXI.TextStyle({
@@ -145,11 +166,6 @@ function onAssetsLoaded() {
         wordWrapWidth: 440,
     });
 
-    const playText = new PIXI.Text('Spin!', style);
-    playText.x = Math.round((bottom.width - playText.width) / 2);
-    playText.y = app.screen.height - margin + Math.round((margin - playText.height) / 2);
-    bottom.addChild(playText);
-
     // Add header text
     const headerText = new PIXI.Text('EPIC JOKER', style);
     headerText.x = Math.round((top.width - headerText.width) / 2);
@@ -162,6 +178,20 @@ function onAssetsLoaded() {
     creditDisplay.beginFill(0x0f1a44);
     creditDisplay.drawRect(app.screen.width - margin * 2.2, ( margin - 40) / 2 , 140, 40);
     creditDisplay.endFill();
+
+    //win rectangle
+    const winDisplay = new PIXI.Graphics();
+    winDisplay.lineStyle(2, 0xFFFFFF, 1);
+    winDisplay.beginFill(0x0f1a44);
+    winDisplay.drawRect(Math.round(app.screen.width / 10), SYMBOL_SIZE * 3 + margin + (top.height / 6) , 140, 40);
+    winDisplay.endFill();
+
+    //bet rectangle
+    const betDisplay = new PIXI.Graphics();
+    betDisplay.lineStyle(2, 0xFFFFFF, 1);
+    betDisplay.beginFill(0x0f1a44);
+    betDisplay.drawRect(Math.round((app.screen.width) - (app.screen.width / 4)), SYMBOL_SIZE * 3 + margin + (top.height / 6) , 140, 40);
+    betDisplay.endFill();
 
     const informationStyle = new PIXI.TextStyle({
         fontFamily: 'Arial',
@@ -177,36 +207,116 @@ function onAssetsLoaded() {
         wordWrapWidth: 300
     });
 
-    //credit display
+    const labelText = new PIXI.TextStyle({
+        fontFamily: 'Arial',
+        fontSize: 15,
+        fontWeight: 'bold',
+        fill: '#ffffff',
+        strokeThickness: 1,
+        dropShadow: true,
+        dropShadowColor: '#000000',
+        dropShadowAngle: Math.PI / 6,
+        dropShadowDistance: 1,
+        wordWrap: true,
+        wordWrapWidth: 300
+    });
+
+    //credit value
     const creditText = new PIXI.Text(`${playerInformation.credit}`, informationStyle)
     creditText.x = (app.screen.width - margin * 1.6);
     creditText.y = ( 22.5 ); //treba dobiti matematicki ovo
     creditDisplay.addChild(creditText)
-
     top.addChild(creditDisplay)
 
-    app.stage.addChild(topContainer);
-    app.stage.addChild(bottomContainer);
+    //win value
+    const winValue = new PIXI.Text(`${playerInformation.win}`, informationStyle)
+    winValue.x = Math.round(Math.round((app.screen.width / 10) + winDisplay.width / 2) );
+    winValue.y = (app.screen.height - margin * 0.8 ); // todo treba dobiti matematicki ovo
+    winDisplay.addChild(winValue)
+    bottom.addChild(winDisplay)
 
-    // Set the interactivity.
-    bottom.interactive = true;
-    bottom.buttonMode = true;
-    bottom.addListener('pointerdown', () => {
+    //bet value
+    const betValue = new PIXI.Text(`${playerInformation.bet}`, informationStyle)
+    betValue.x = Math.round((app.screen.width) - (app.screen.width / 4) + betDisplay.width / 2);
+    betValue.y = (app.screen.height - margin * 0.8); // todo treba dobiti matematicki ovo
+    betDisplay.addChild(betValue)
+    bottom.addChild(betDisplay)
+
+    //win text
+    const winText = new PIXI.Text('WIN', labelText)
+    winText.x = Math.round(Math.round((app.screen.width / 10) ) );
+    winText.y = (app.screen.height - 20 ); // todo treba dobiti matematicki ovo
+    winDisplay.addChild(winText)
+    bottom.addChild(winDisplay)
+
+    //bet text
+    const betText = new PIXI.Text(`BET`, labelText)
+    betText.x = Math.round((app.screen.width) - (app.screen.width / 4) );
+    betText.y = (app.screen.height - 20); // todo treba dobiti matematicki ovo
+    betDisplay.addChild(betText)
+    bottom.addChild(betDisplay)
+
+
+
+    const activeSpinButton = createImageButton(
+        true,
+        spinVisible,
+        './assets/sounds/mp3/spin_sound.mp3',
+        './assets/sounds/ogg/spin_sound.ogg',
+        Math.round((bottom.width - 75) / 2), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        (app.screen.height - margin - 10) ,
+        0.35
+    ); 
+
+    // ToDo napraviti kad se vrti reel da bude slika driga i da bude disable
+
+    const betOneButton = createImageButton(
+        true,
+        betOne,
+        './assets/sounds/mp3/bet_sound.mp3',
+        './assets/sounds/ogg/bet_sound.ogg',
+        Math.round((bottom.width - 75) / 2 - 80 ) , // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        (app.screen.height - margin + 5) ,
+        0.75
+    ); 
+
+    const betMaxButton = createImageButton( 
+        true,
+        betMax,
+        './assets/sounds/mp3/bet_sound.mp3',
+        './assets/sounds/ogg/bet_sound.ogg',
+        Math.round((bottom.width - 75) / 2 + 100), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        (app.screen.height - margin + 5) ,
+        0.75
+    ); 
+     
+    activeSpinButton.addListener('pointerdown', () => {
+        if( playerInformation.credit >= 1 ) {
+            playerInformation.reduceCredit();
+            creditText.text = playerInformation.credit;
+        } else return; //napraviti nesto intuitivnije
         startPlay();
+    });
+
+    betOneButton.addListener('pointerdown', () => {
+        playerInformation.reduceBetOne();
+        betText.text = playerInformation.oneBet;
+        console.log('bet one');
+    });
+
+    betMaxButton.addListener('pointerdown', () => {
+        playerInformation.reduceBetMax();
+        betText.text = playerInformation.maxBet;
+        console.log('max one');
     });
 
     let running = false;
 
     // Function to start playing.
     function startPlay() {
+        console.log('ovo je start play');
         if (running) return;
         running = true;
-
-        if(playerInformation.credit >= 1 ) {
-            playerInformation.reduceCredit();
-            console.log(`credit se smanjio i sada iznosi ${playerInformation.credit}`);
-            creditText.text = playerInformation.credit;
-        } else return;
 
         for (let i = 0; i < reels.length; i++) {
             const r = reels[i];
@@ -222,6 +332,7 @@ function onAssetsLoaded() {
             tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
         }
     }
+    //da ne moze da se klikne dok se vrti
 
     // Reels done handler.
     function reelsComplete() {
