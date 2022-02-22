@@ -102,6 +102,7 @@ function onAssetsLoaded() {
         // Build the symbols
         for (let j = 0; j < 4; j++) {
             const symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
+            console.log(symbol.texture.textureCacheIds); //ovo mi znaci da se prvi element u rilu ne renderuje !
             // Scale the symbol to fit symbol area.
             symbol.y = j * SYMBOL_SIZE;
             symbol.scale.x = symbol.scale.y = Math.min(SYMBOL_SIZE / symbol.width, SYMBOL_SIZE / symbol.height);
@@ -352,35 +353,40 @@ function onAssetsLoaded() {
     });
 
     let running = false;
+    //2 same icons in any reel at same horizontal position means player wins
 
-    // Function to start playing.
     function startPlay() {
-        console.log('ovo je start play');
         if (running) return;
         running = true;
 
         for (let i = 0; i < reels.length; i++) {
             const r = reels[i];
-            // console.log(r, `ovo su rilovi ${i}`);
-
             const extra = Math.floor(Math.random() * 3);
-            // console.log(extra);
-
             const target = r.position + 10 + i * 5 + extra;
-            // console.log(target);
-            
             const time = 2500 + i * 600 + extra * 600;
             tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
+            // console.log(reels.map(reel => reel.symbols));
+            // checkForWin(reels.map(reel => reel.sprites[2]))
+            // helperArray.push(r.container.children.map(texture => console.log(texture.texture.textureCacheIds)))
+            // console.log(r);
         }
     }
-    //da ne moze da se klikne dok se vrti
 
-    // Reels done handler.
     function reelsComplete() {
+        console.log(helperArray, 'helperArray');
         running = false;
     }
 
-    // Listen for animate update.
+    let helperArray = [];
+
+    function checkForWin(symbols) {
+        const combination = new Set();
+        symbols.forEach(symbol => combination.add(symbol.texture.textureCacheIds[0].split('.')[0]));
+        console.log(symbols);
+        if (combination.size === 1 && !combination.has('SYM1')) return true;
+        return combination.size === 2 && combination.has('SYM1');   
+    }
+
     app.ticker.add((delta) => {
     // Update the slots.
         for (let i = 0; i < reels.length; i++) {
@@ -401,6 +407,7 @@ function onAssetsLoaded() {
                     s.texture = slotTextures[Math.floor(Math.random() * slotTextures.length)];
                     s.scale.x = s.scale.y = Math.min(SYMBOL_SIZE / s.texture.width, SYMBOL_SIZE / s.texture.height);
                     s.x = Math.round((SYMBOL_SIZE - s.width) / 2);
+                    helperArray.push(s)
                 }
             }
         }
@@ -446,13 +453,10 @@ app.ticker.add((delta) => {
     }
 });
 
-// Basic lerp funtion.
 function lerp(a1, a2, t) {
     return a1 * (1 - t) + a2 * t;
 }
 
-// Backout function from tweenjs.
-// https://github.com/CreateJS/TweenJS/blob/master/src/tweenjs/Ease.js
 function backout(amount) {
     return (t) => (--t * t * ((amount + 1) * t + amount) + 1);
 }
