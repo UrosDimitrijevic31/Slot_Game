@@ -13,7 +13,7 @@ class Information {
 
         this.addBet = function () {
             //Add bet with one point till it equals to three
-            if (playerInformation.bet >= 1 && playerInformation.bet <= 100) {
+            if (playerInformation.bet >= 1 && playerInformation.bet < 100) {
                 playerInformation.bet ++;
             }
         };
@@ -41,10 +41,10 @@ let playerInformation = new Information();
 
 
 app.loader
-    .add('banana',      './assets/images/bananaSlot_250x250.png')
-    .add('cherry',      './assets/images/cherrySlot_250x250.png')
-    .add('lemon',       './assets/images/lemonSlot_250x250.png')
-    .add('seven',       './assets/images/sevenSlot_250x250.png')
+    .add('banana',      './assets/images/banana.png')
+    .add('cherry',      './assets/images/cherry.png')
+    .add('lemon',       './assets/images/lemon.png')
+    .add('seven',       './assets/images/seven.png')
     .add('betOne',      './assets/images/betOne.png')
     .add('betMax',      './assets/images/betMax.png')
     .add('spinVisible', './assets/images/spin_visible.png')
@@ -54,10 +54,10 @@ app.loader
     .add('slotLogo',    './assets/images/slots-logo.png')
     .load(onAssetsLoaded);
 
-let banana      = PIXI.Texture.from("./assets/images/bananaSlot_250x250.png");
-let cherry      = PIXI.Texture.from("./assets/images/cherrySlot_250x250.png");
-let lemon       = PIXI.Texture.from("./assets/images/lemonSlot_250x250.png"); 
-let seven       = PIXI.Texture.from("./assets/images/sevenSlot_250x250.png");
+let banana      = PIXI.Texture.from("./assets/images/banana.png");
+let cherry      = PIXI.Texture.from("./assets/images/cherry.png");
+let lemon       = PIXI.Texture.from("./assets/images/lemon.png"); 
+let seven       = PIXI.Texture.from("./assets/images/seven.png");
 let betOne      = PIXI.Texture.from("./assets/images/betOne.png");
 let betMax      = PIXI.Texture.from("./assets/images/betMax.png");
 let spinVisible = PIXI.Texture.from("./assets/images/spin_visible.png");
@@ -102,8 +102,9 @@ function onAssetsLoaded() {
         // Build the symbols
         for (let j = 0; j < 4; j++) {
             const symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
-            console.log(symbol.texture.textureCacheIds); //ovo mi znaci da se prvi element u rilu ne renderuje !
-            // Scale the symbol to fit symbol area.
+
+            console.log(symbol.texture.textureCacheIds[0].split('.')[1].split('/')[3]); 
+        
             symbol.y = j * SYMBOL_SIZE;
             symbol.scale.x = symbol.scale.y = Math.min(SYMBOL_SIZE / symbol.width, SYMBOL_SIZE / symbol.height);
             symbol.x = Math.round((SYMBOL_SIZE - symbol.width) / 2);
@@ -356,6 +357,13 @@ function onAssetsLoaded() {
     //2 same icons in any reel at same horizontal position means player wins
 
     function startPlay() {
+        activeSpinButton.interactive = false;
+        betOneButton.interactive = false;
+        betMaxButton.interactive = false;
+        addButton.interactive = false;
+        minusButton.interactive = false;
+        winValue.text = 0;
+
         if (running) return;
         running = true;
 
@@ -366,25 +374,99 @@ function onAssetsLoaded() {
             const time = 2500 + i * 600 + extra * 600;
             tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
             // console.log(reels.map(reel => reel.symbols));
-            // checkForWin(reels.map(reel => reel.sprites[2]))
+            // winCheck(reels.map(reel => reel.sprites[2]))
             // helperArray.push(r.container.children.map(texture => console.log(texture.texture.textureCacheIds)))
             // console.log(r);
         }
     }
 
     function reelsComplete() {
-        console.log(helperArray, 'helperArray');
+        activeSpinButton.interactive = true;
+        betOneButton.interactive = true;
+        betMaxButton.interactive = true;
+        addButton.interactive = true;
+        minusButton.interactive = true;
+        console.log(helperArray);
+        payInfo(fruit)
         running = false;
     }
 
     let helperArray = [];
 
-    function checkForWin(symbols) {
-        const combination = new Set();
-        symbols.forEach(symbol => combination.add(symbol.texture.textureCacheIds[0].split('.')[0]));
-        console.log(symbols);
-        if (combination.size === 1 && !combination.has('SYM1')) return true;
-        return combination.size === 2 && combination.has('SYM1');   
+    let fruit = 'banana';
+    function payInfo(symbol) {
+        // todo refaktorizovati kod, resiti kad ima 2 simbola
+        let twoSymbols   = [1,2,4,8];
+        let threeSymbols = [0.5, 1, 2, 4];
+         
+        if(symbol === 'lemon')  {
+            playerInformation.win = playerInformation.bet * 1; 
+            playerInformation.credit = playerInformation.credit += playerInformation.win;
+            winValue.text = playerInformation.win;
+            creditValue.text = playerInformation.credit
+        }      
+        if(symbol === 'banana') {
+            playerInformation.win = playerInformation.bet * 2;
+            playerInformation.credit = playerInformation.credit += playerInformation.win;
+            winValue.text = playerInformation.win;
+            creditValue.text = playerInformation.credit
+        }           
+        if(symbol === 'cherry') {
+            playerInformation.win = playerInformation.bet * 4;
+            playerInformation.credit = playerInformation.credit += playerInformation.win;
+            winValue.text = playerInformation.win;
+            creditValue.text = playerInformation.credit
+        }           
+        if(symbol === 'seven')  {
+            playerInformation.win = playerInformation.bet * 8;
+            playerInformation.credit = playerInformation.credit += playerInformation.win;
+            winValue.text = playerInformation.win;
+            creditValue.text = playerInformation.credit
+        }            
+    }
+
+    function winLogic(symbols) {
+        // const combination = new Set();
+        //ovo je logika d bilo gde nadje 3 slicice, to meni ne znaci nista
+        // symbols.forEach(symbol => combination.add(symbol.texture.textureCacheIds[0].split('.')[0]));
+
+
+        // if (combination.size === 1 && combination.has('lemon'))  return true;
+        // if (combination.size === 1 && combination.has('cherry')) return true;
+        // if (combination.size === 1 && combination.has('banana')) return true;
+        // if (combination.size === 1 && combination.has('seven'))  return true;
+
+        let firstSymbolInWinArray;
+        let win = false;
+        // {{Sprite},{Sprite},{Sprite},{Sprite},{Sprite}..}
+        //
+
+        symbol.texture.textureCacheIds[0].split('.')[1].split('/')[3]
+        for (let i = 0; i < symbols.length; i++) {
+            
+            //gornji red 
+            if(symbol[1] == symbol[5] == symbol[9]) {
+                win = true;
+            }
+            //srednji red
+            if(symbol[2] == symbol[6] == symbol[10]) {
+                win = true;
+            } 
+            //donji red
+            if(symbol[3] == symbol[7] == symbol[11]) {
+                win = true;
+            }
+            //dijagonala gore
+            if(symbol[1] == symbol[6] == symbol[11]) {
+                win = true;
+            }
+            //dijagonala dole
+            if(symbol[3] == symbol[6] == symbol[9]) {
+                win = true;
+            }
+
+    }   
+        return ;   
     }
 
     app.ticker.add((delta) => {
@@ -407,8 +489,9 @@ function onAssetsLoaded() {
                     s.texture = slotTextures[Math.floor(Math.random() * slotTextures.length)];
                     s.scale.x = s.scale.y = Math.min(SYMBOL_SIZE / s.texture.width, SYMBOL_SIZE / s.texture.height);
                     s.x = Math.round((SYMBOL_SIZE - s.width) / 2);
-                    helperArray.push(s)
+                   
                 }
+                helperArray.push(s.texture.textureCacheIds[0])
             }
         }
     });
@@ -439,7 +522,6 @@ app.ticker.add((delta) => {
     for (let i = 0; i < tweening.length; i++) {
         const t = tweening[i];
         const phase = Math.min(1, (now - t.start) / t.time);
-
         t.object[t.property] = lerp(t.propertyBeginValue, t.target, t.easing(phase));
         if (t.change) t.change(t);
         if (phase === 1) {
