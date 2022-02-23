@@ -1,10 +1,8 @@
 const app = new PIXI.Application({ backgroundColor: 0x0f1a44 });
 document.body.appendChild(app.view); //ovako se kreira canvas element
-
-
 class Information {
     constructor(credit, bet, win) {
-        this.credit = 1000;
+        this.credit  = 1000;
         this.bet     = 1;
         this.win     = 0;
         this.maxBet  = 100;
@@ -12,33 +10,27 @@ class Information {
         this.playing = false;
 
         this.addBet = function () {
-            //Add bet with one point till it equals to three
             if (playerInformation.bet >= 1 && playerInformation.bet < 100) {
                 playerInformation.bet ++;
             }
         };
         this.minusBet = function minusBet() {
-            //Reduce bet one point till it equals to 1
             if (playerInformation.bet > 1) {
                 playerInformation.bet --;
             }
         };
         this.reduceCredit = function (){
-            //Reduce credit when player press on spin button
             this.credit = this.credit - this.bet;
         }
         this.reduceBetMax = function (){
-            //Reduce bet when player press on maxBet button
             this.bet = this.maxBet;
         }
         this.reduceBetOne = function (){
-            //Reduce bet when player press on maxBet button
             this.bet = this.oneBet;
         }
     }
 }
 let playerInformation = new Information();
-
 
 app.loader
     .add('banana',      './assets/images/banana.png')
@@ -66,12 +58,11 @@ let addBtn      = PIXI.Texture.from("./assets/images/addBtn.png");
 let minusBtn    = PIXI.Texture.from("./assets/images/minusBtn.png");
 let slotLogo    = PIXI.Texture.from("./assets/images/slots-logo.png");
   
-const REEL_WIDTH = 160; //200 je ok
-const SYMBOL_SIZE = 150; //190
+const REEL_WIDTH = 160; 
+const SYMBOL_SIZE = 150; 
 
-// onAssetsLoaded handler builds the example.
+const reels = [];
 function onAssetsLoaded() {
-    // Create different slot symbols.
     const slotTextures = [
         banana,
         cherry,
@@ -80,9 +71,7 @@ function onAssetsLoaded() {
     ];
 
     // Build the reels
-    const reels = [];
-    const reelContainer = new PIXI.Container(); //ovo je veliki container za reelove
-
+    const reelContainer = new PIXI.Container(); 
     for (let i = 0; i < 3; i++) {
         const rc = new PIXI.Container();
         rc.x = i * REEL_WIDTH;
@@ -102,9 +91,7 @@ function onAssetsLoaded() {
         // Build the symbols
         for (let j = 0; j < 4; j++) {
             const symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
-
             console.log(symbol.texture.textureCacheIds[0].split('.')[1].split('/')[3]); 
-        
             symbol.y = j * SYMBOL_SIZE;
             symbol.scale.x = symbol.scale.y = Math.min(SYMBOL_SIZE / symbol.width, SYMBOL_SIZE / symbol.height);
             symbol.x = Math.round((SYMBOL_SIZE - symbol.width) / 2);
@@ -113,14 +100,13 @@ function onAssetsLoaded() {
         }
         reels.push(reel);   
     }
+
     app.stage.addChild(reelContainer);
     
-    
-
     // Build top & bottom covers and position reelContainer
-    const margin = (app.screen.height - SYMBOL_SIZE * 3) / 2; //75 - ovde podesavam top & bottom
+    const margin = (app.screen.height - SYMBOL_SIZE * 3) / 2; 
     reelContainer.y = margin;
-    reelContainer.x = Math.round(app.screen.width - REEL_WIDTH * 4); //160
+    reelContainer.x = Math.round(app.screen.width - REEL_WIDTH * 4); 
 
     const topContainer = new PIXI.Container();
 
@@ -139,7 +125,6 @@ function onAssetsLoaded() {
     app.stage.addChild(topContainer);
     app.stage.addChild(bottomContainer);
     
-    //add buttons
     const createImageButton = ( interactive, image, audioMP3, audioOGG, x, y, scale ) => {
         const button = PIXI.Sprite.from(image);
         const sound = new Howl({
@@ -156,52 +141,24 @@ function onAssetsLoaded() {
         return button;
     };
 
-    // Add play text
-    const style = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 36,
-        fontStyle: 'italic',
-        fontWeight: 'bold',
-        fill: ['#ffffff', '#00ff99'], // gradient
-        stroke: '#4a1850',
-        strokeThickness: 5,
-        dropShadow: true,
-        dropShadowColor: '#000000',
-        dropShadowBlur: 4,
-        dropShadowAngle: Math.PI / 6,
-        dropShadowDistance: 6,
-        wordWrap: true,
-        wordWrapWidth: 440,
-    });
     const logo = new PIXI.Sprite.from(slotLogo);
     logo.height = top.height + 2;
     logo.x = Math.round((top.width - logo.width) / 2);
     logo.y = 0;
     top.addChild(logo);
-    // logo.height = 
-    // logo.width  =
 
-    // Add header text
-    // const headerText = new PIXI.Text('EPIC JOKER', style);
-    // headerText.x = Math.round((top.width - headerText.width) / 2);
-    // headerText.y = Math.round((margin - headerText.height) / 2);
-    // top.addChild(headerText);
-
-    //credit rectangle
     const creditDisplay = new PIXI.Graphics();
     creditDisplay.lineStyle(2, 0xFFFFFF, 1);
     creditDisplay.beginFill(0x0f1a44);
     creditDisplay.drawRect(app.screen.width - margin * 2.2, ( margin - 40) / 2 , 140, 40);
     creditDisplay.endFill();
 
-    //win rectangle
     const winDisplay = new PIXI.Graphics();
     winDisplay.lineStyle(2, 0xFFFFFF, 1);
     winDisplay.beginFill(0x0f1a44);
     winDisplay.drawRect(Math.round(app.screen.width / 10), Math.round(SYMBOL_SIZE * 3 + margin + (top.height / 6)) , 140, 40);
     winDisplay.endFill();
 
-    //bet rectangle
     const betDisplay = new PIXI.Graphics();
     betDisplay.lineStyle(2, 0xFFFFFF, 1);
     betDisplay.beginFill(0x0f1a44);
@@ -239,40 +196,40 @@ function onAssetsLoaded() {
     //credit value
     const creditValue = new PIXI.Text(`${playerInformation.credit}`, informationStyle)
     creditValue.x = (app.screen.width - margin * 1.6);
-    creditValue.y = ( 22.5 ); //treba dobiti matematicki ovo
+    creditValue.y = ( 22.5 );
     creditDisplay.addChild(creditValue)
     top.addChild(creditDisplay)
 
     //win value
     const winValue = new PIXI.Text(`${playerInformation.win}`, informationStyle)
     winValue.x = Math.round(Math.round((app.screen.width / 10) + winDisplay.width / 2.2) );
-    winValue.y = (app.screen.height - margin * 0.8 ); // todo treba dobiti matematicki ovo
+    winValue.y = (app.screen.height - margin * 0.8 ); 
     winDisplay.addChild(winValue)
     bottom.addChild(winDisplay)
 
     //bet value
     const betValue = new PIXI.Text(`${playerInformation.bet}`, informationStyle)
     betValue.x = Math.round((app.screen.width) - (app.screen.width / 4) + betDisplay.width / 2);
-    betValue.y = (app.screen.height - margin * 0.8); // todo treba dobiti matematicki ovo
+    betValue.y = (app.screen.height - margin * 0.8); 
     betDisplay.addChild(betValue)
     bottom.addChild(betDisplay)
     
     //credit text
     const creditText = new PIXI.Text('CREDIT', labelText)
     creditText.x = Math.round(app.screen.width - margin * 1.6);
-    creditText.y = (58); // todo treba dobiti matematicki ovo
+    creditText.y = (58); 
     bottom.addChild(winDisplay, creditText)
 
     //win text
     const winText = new PIXI.Text('WIN', labelText)
     winText.x = Math.round((app.screen.width / 10) + winDisplay.width / 2.5);
-    winText.y = (app.screen.height - 20 ); // todo treba dobiti matematicki ovo
+    winText.y = (app.screen.height - 20 ); 
     bottom.addChild(winDisplay, winText)
 
     //bet text
     const betText = new PIXI.Text(`BET`, labelText)
     betText.x = Math.round((app.screen.width) - (betDisplay.width * 1.9 ) );
-    betText.y = (app.screen.height - 20); // todo treba dobiti matematicki ovo
+    betText.y = (app.screen.height - 20); 
     bottom.addChild(betDisplay, betText)
 
 
@@ -282,19 +239,18 @@ function onAssetsLoaded() {
         spinVisible,
         './assets/sounds/mp3/spin_sound.mp3',
         './assets/sounds/ogg/spin_sound.ogg',
-        Math.round((bottom.width - 75) / 2), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        Math.round((bottom.width - 75) / 2), 
         (app.screen.height - margin - 10) ,
         0.35
     ); 
 
-    // ToDo napraviti kad se vrti reel da bude slika druga i da bude disable
     const betOneButton = createImageButton(
         true,
         betOne,
         './assets/sounds/mp3/bet_sound.mp3',
         './assets/sounds/ogg/bet_sound.ogg',
-        Math.round((bottom.width - 75) / 2 - 80 ) , // ToDo 75 -> image.width - srediti da bude dinamcki !!
-        (app.screen.height - margin + 5) ,
+        Math.round((bottom.width - 75) / 2 - 80 ), 
+        (app.screen.height - margin + 5),
         0.75
     ); 
     const betMaxButton = createImageButton( 
@@ -302,7 +258,7 @@ function onAssetsLoaded() {
         betMax,
         './assets/sounds/mp3/bet_sound.mp3',
         './assets/sounds/ogg/bet_sound.ogg',
-        Math.round((bottom.width - 75) / 2 + 100), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        Math.round((bottom.width - 75) / 2 + 100), 
         (app.screen.height - margin + 5) ,
         0.75
     ); 
@@ -311,7 +267,7 @@ function onAssetsLoaded() {
         addBtn,
         './assets/sounds/mp3/bet_sound.mp3',
         './assets/sounds/ogg/bet_sound.ogg',
-        Math.round((app.screen.width) - (app.screen.width / 8.3)), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        Math.round((app.screen.width) - (app.screen.width / 8.3)), 
         Math.round((app.screen.height - margin + 14.5)) ,
         0.15
     ); 
@@ -320,7 +276,7 @@ function onAssetsLoaded() {
         minusBtn,
         './assets/sounds/mp3/bet_sound.mp3',
         './assets/sounds/ogg/bet_sound.ogg',
-        Math.round(bottom.width / 2 + 183), // ToDo 75 -> image.width - srediti da bude dinamcki !!
+        Math.round(bottom.width / 2 + 183), 
         Math.round((app.screen.height - margin + 13.5)),
         0.15
     ); 
@@ -329,7 +285,7 @@ function onAssetsLoaded() {
         if( playerInformation.credit >= 1 ) {
             playerInformation.reduceCredit();
             creditValue.text = playerInformation.credit;
-        } else return; //napraviti nesto intuitivnije
+        } else return; //create some alert, or something that
         startPlay();
     });
 
@@ -354,15 +310,14 @@ function onAssetsLoaded() {
     });
 
     let running = false;
-    //2 same icons in any reel at same horizontal position means player wins
 
     function startPlay() {
         activeSpinButton.interactive = false;
-        betOneButton.interactive = false;
-        betMaxButton.interactive = false;
-        addButton.interactive = false;
-        minusButton.interactive = false;
-        winValue.text = 0;
+        betOneButton.interactive     = false;
+        betMaxButton.interactive     = false;
+        addButton.interactive        = false;
+        minusButton.interactive      = false;
+        winValue.text                = 0;
 
         if (running) return;
         running = true;
@@ -373,108 +328,167 @@ function onAssetsLoaded() {
             const target = r.position + 10 + i * 5 + extra;
             const time = 2500 + i * 600 + extra * 600;
             tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
-            // console.log(reels.map(reel => reel.symbols));
-            // winCheck(reels.map(reel => reel.sprites[2]))
-            // helperArray.push(r.container.children.map(texture => console.log(texture.texture.textureCacheIds)))
-            // console.log(r);
         }
     }
-
-    function reelsComplete() {
+    //maybe app.ticker must be Promise? but I don't know to work with PixiJS very good 
+    async function reelsComplete() {
         activeSpinButton.interactive = true;
         betOneButton.interactive = true;
         betMaxButton.interactive = true;
         addButton.interactive = true;
         minusButton.interactive = true;
-        console.log(helperArray);
-        payInfo(fruit)
         running = false;
+
+        //test array to check win logic
+        let test = ['lemon', 'banana', 'cherry', 'seven', 'seven', 'banana', 'seven', 'seven','seven', 'banana', 'cherry', 'cherry']
+
+        // let symbols = await findNameTextures(reels);
+        // winLogic(symbols);
+
+        winLogic(test);
+    
     }
 
-    let helperArray = [];
+    function winLogic(symbols) {
+        let firstRow            = [];
+        let secondRow           = [];
+        let thirdRow            = [];
+        let diagonalOne         = [];
+        let diagonalTwo         = [];
+        let firstRowTWoSymbols  = [];
+        let secondRowTWoSymbols = [];
+        let thirdRowTWoSymbols  = [];
+        let comboFirstRow            = new Set([]);
+        let comboSecondRow           = new Set([]);
+        let comboThirdRow            = new Set([]);
+        let comboDiagonalOne         = new Set([]);
+        let comboDiagonalTwo         = new Set([]);
+        let comboFirstRowTwoSymbols  = new Set([]);
+        let comboSecondRowTwoSymbols = new Set([]);
+        let comboThirdRowTwoSymbols  = new Set([]);
 
-    let fruit = 'banana';
+        //those symbols are hidden outside reels
+        let removeValFrom = [0, 4, 8]; 
+        symbols = symbols.filter((value, index) => {
+            return removeValFrom.indexOf(index) == -1;
+        })
+
+        console.log(symbols);
+        
+        for (let i = 0; i < symbols.length; i++) {
+            if(i == 0) {    
+                firstRow.push(symbols[i], symbols[i+3], symbols[i+6]);
+                comboFirstRow.add(symbols[i]).add(symbols[i+3]).add(symbols[i+6]);
+                diagonalOne.push(symbols[i], symbols[i+4], symbols[i+8]);
+                comboDiagonalOne.add(symbols[i]).add(symbols[i+4]).add(symbols[i+8]);
+                firstRowTWoSymbols.push(symbols[i], symbols[i+3]);
+                comboFirstRowTwoSymbols.add(symbols[i]).add(symbols[i+3]);
+            }
+            if(i == 1) {
+                secondRow.push(symbols[i], symbols[i+3], symbols[i+6]);
+                comboSecondRow.add(symbols[i]).add(symbols[i+3]).add(symbols[i+6]);
+                secondRowTWoSymbols.push(symbols[i], symbols[i+3]);
+                comboSecondRowTwoSymbols.add(symbols[i]).add(symbols[i+3]);
+            }
+            if(i == 2) {
+                thirdRow.push(symbols[i], symbols[i+3], symbols[i+6]);
+                comboThirdRow.add(symbols[i]).add(symbols[i+3]).add(symbols[i+6]);
+                diagonalTwo.push(symbols[i], symbols[i+2], symbols[i+4]);
+                comboDiagonalTwo.add(symbols[i]).add(symbols[i+2]).add(symbols[i+4]);
+                thirdRowTWoSymbols.push(symbols[i], symbols[i+3]);
+                comboThirdRowTwoSymbols.add(symbols[i]).add(symbols[i+3]);
+            }
+        }
+
+
+        if  (((comboFirstRow.size   === 1 && comboFirstRow.has('lemon'))  || (comboFirstRowTwoSymbols.size  === 1 && comboFirstRowTwoSymbols.has('lemon')))  ||
+             ((comboSecondRow.size  === 1 && comboSecondRow.has('lemon')) || (comboSecondRowTwoSymbols.size === 1 && comboSecondRowTwoSymbols.has('lemon'))) || 
+             ((comboThirdRow.size   === 1 && comboThirdRow.has('lemon'))  || (comboThirdRowTwoSymbols.size  === 1 && comboThirdRowTwoSymbols.has('lemon')))  || 
+             (comboDiagonalOne.size === 1 && comboDiagonalOne.has('lemon')) || 
+             (comboDiagonalTwo.size === 1 && comboDiagonalTwo.has('lemon'))) {            
+                payInfo('lemon');            
+        }   
+
+        if  (((comboFirstRow.size   === 1 && comboFirstRow.has('banana'))  || (comboFirstRowTwoSymbols.size  === 1 && comboFirstRowTwoSymbols.has('banana')))  ||
+             ((comboSecondRow.size  === 1 && comboSecondRow.has('banana')) || (comboSecondRowTwoSymbols.size === 1 && comboSecondRowTwoSymbols.has('banana'))) || 
+             ((comboThirdRow.size   === 1 && comboThirdRow.has('banana'))  || (comboThirdRowTwoSymbols.size  === 1 && comboThirdRowTwoSymbols.has('banana')))  ||            
+             (comboDiagonalOne.size === 1 && comboDiagonalOne.has('banana')) || 
+             (comboDiagonalTwo.size === 1 && comboDiagonalTwo.has('banana'))) {          
+                payInfo('banana');            
+        }
+        if  (((comboFirstRow.size   === 1 && comboFirstRow.has('cherry'))  || (comboFirstRowTwoSymbols.size  === 1 && comboFirstRowTwoSymbols.has('cherry')))  ||
+             ((comboSecondRow.size  === 1 && comboSecondRow.has('cherry')) || (comboSecondRowTwoSymbols.size === 1 && comboSecondRowTwoSymbols.has('cherry'))) || 
+             ((comboThirdRow.size   === 1 && comboThirdRow.has('cherry'))  || (comboThirdRowTwoSymbols.size  === 1 && comboThirdRowTwoSymbols.has('cherry')))  ||            
+             (comboDiagonalOne.size === 1 && comboDiagonalOne.has('cherry')) || 
+             (comboDiagonalTwo.size === 1 && comboDiagonalTwo.has('cherry'))) {    
+                payInfo('cherry');            
+        }
+        if  (((comboFirstRow.size   === 1 && comboFirstRow.has('seven'))  || (comboFirstRowTwoSymbols.size  === 1 && comboFirstRowTwoSymbols.has('seven')))  ||
+             ((comboSecondRow.size  === 1 && comboSecondRow.has('seven')) || (comboSecondRowTwoSymbols.size === 1 && comboSecondRowTwoSymbols.has('seven'))) || 
+             ((comboThirdRow.size   === 1 && comboThirdRow.has('seven'))  || (comboThirdRowTwoSymbols.size  === 1 && comboThirdRowTwoSymbols.has('seven')))  ||            
+             (comboDiagonalOne.size === 1 && comboDiagonalOne.has('seven')) || 
+             (comboDiagonalTwo.size === 1 && comboDiagonalTwo.has('seven'))) {            
+                payInfo('seven');            
+        }
+    }
+
+
     function payInfo(symbol) {
-        // todo refaktorizovati kod, resiti kad ima 2 simbola
-        let twoSymbols   = [1,2,4,8];
-        let threeSymbols = [0.5, 1, 2, 4];
-         
+        console.log(symbol);
         if(symbol === 'lemon')  {
             playerInformation.win = playerInformation.bet * 1; 
             playerInformation.credit = playerInformation.credit += playerInformation.win;
             winValue.text = playerInformation.win;
-            creditValue.text = playerInformation.credit
+            creditValue.text = playerInformation.credit;
+            winSound();
         }      
         if(symbol === 'banana') {
             playerInformation.win = playerInformation.bet * 2;
             playerInformation.credit = playerInformation.credit += playerInformation.win;
             winValue.text = playerInformation.win;
-            creditValue.text = playerInformation.credit
+            creditValue.text = playerInformation.credit;
+            winSound();
         }           
         if(symbol === 'cherry') {
             playerInformation.win = playerInformation.bet * 4;
             playerInformation.credit = playerInformation.credit += playerInformation.win;
             winValue.text = playerInformation.win;
-            creditValue.text = playerInformation.credit
+            creditValue.text = playerInformation.credit;
+            winSound();
         }           
         if(symbol === 'seven')  {
             playerInformation.win = playerInformation.bet * 8;
             playerInformation.credit = playerInformation.credit += playerInformation.win;
             winValue.text = playerInformation.win;
-            creditValue.text = playerInformation.credit
+            creditValue.text = playerInformation.credit;
+            winSound();
         }            
     }
 
-    function winLogic(symbols) {
-        // const combination = new Set();
-        //ovo je logika d bilo gde nadje 3 slicice, to meni ne znaci nista
-        // symbols.forEach(symbol => combination.add(symbol.texture.textureCacheIds[0].split('.')[0]));
-
-
-        // if (combination.size === 1 && combination.has('lemon'))  return true;
-        // if (combination.size === 1 && combination.has('cherry')) return true;
-        // if (combination.size === 1 && combination.has('banana')) return true;
-        // if (combination.size === 1 && combination.has('seven'))  return true;
-
-        let firstSymbolInWinArray;
-        let win = false;
-        // {{Sprite},{Sprite},{Sprite},{Sprite},{Sprite}..}
-        //
-
-        symbol.texture.textureCacheIds[0].split('.')[1].split('/')[3]
-        for (let i = 0; i < symbols.length; i++) {
-            
-            //gornji red 
-            if(symbol[1] == symbol[5] == symbol[9]) {
-                win = true;
-            }
-            //srednji red
-            if(symbol[2] == symbol[6] == symbol[10]) {
-                win = true;
-            } 
-            //donji red
-            if(symbol[3] == symbol[7] == symbol[11]) {
-                win = true;
-            }
-            //dijagonala gore
-            if(symbol[1] == symbol[6] == symbol[11]) {
-                win = true;
-            }
-            //dijagonala dole
-            if(symbol[3] == symbol[6] == symbol[9]) {
-                win = true;
-            }
-
-    }   
-        return ;   
+    function winSound() {
+        let sound = new Howl({
+            src: ['./assets/sounds/mp3/win.mp3']
+        })
+        sound.play()
     }
 
+    function findNameTextures(reels) {
+        return new Promise(resolve => {
+            let symbolsArray = [];
+            reels.map(symbol => {
+                symbol.symbols.map(sprite => {
+                    symbolsArray.push(sprite._texture.textureCacheIds[0])
+                })
+            })
+            resolve(symbolsArray)
+        })
+        
+    }
+    
     app.ticker.add((delta) => {
     // Update the slots.
         for (let i = 0; i < reels.length; i++) {
             const r = reels[i];
-            // Update blur filter y amount based on speed.
-            // This would be better if calculated with time in mind also. Now blur depends on frame rate.
             r.blur.blurY = (r.position - r.previousPosition) * 8;
             r.previousPosition = r.position;
 
@@ -484,20 +498,17 @@ function onAssetsLoaded() {
                 const prevy = s.y;
                 s.y = ((r.position + j) % r.symbols.length) * SYMBOL_SIZE - SYMBOL_SIZE;
                 if (s.y < 0 && prevy > SYMBOL_SIZE) {
-                    // Detect going over and swap a texture.
-                    // This should in proper product be determined from some logical reel.
                     s.texture = slotTextures[Math.floor(Math.random() * slotTextures.length)];
                     s.scale.x = s.scale.y = Math.min(SYMBOL_SIZE / s.texture.width, SYMBOL_SIZE / s.texture.height);
                     s.x = Math.round((SYMBOL_SIZE - s.width) / 2);
                    
                 }
-                helperArray.push(s.texture.textureCacheIds[0])
             }
         }
     });
+    
 }
 
-// Very simple tweening utility function. This should be replaced with a proper tweening library in a real product.
 const tweening = [];
 function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
     const tween = {
@@ -515,6 +526,7 @@ function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
     tweening.push(tween);
     return tween;
 }
+
 // Listen for animate update.
 app.ticker.add((delta) => {
     const now = Date.now();
