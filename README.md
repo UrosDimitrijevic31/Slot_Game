@@ -3,7 +3,7 @@ slot game made using PixiJS
 
 # GUIDE
 
-1. git pull https://github.com/UrosDimitrijevic31/Slot_Game.git master
+1. git clone https://github.com/UrosDimitrijevic31/Slot_Game.git master
 
 2. npm install
 
